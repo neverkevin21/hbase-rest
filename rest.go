@@ -38,10 +38,12 @@ func (r *RestClient) Get(table, rowkey, cf string) (CellSet, error) {
 		return cellset, errors.New("need params rowkey.")
 	}
 
-	req := NewRequest(r.Timeout, r.Headers)
+	rowkey = url.QueryEscape(rowkey)
 	u, _ := url.Parse(r.Addr)
 	u.Path = path.Join(u.Path, table, rowkey, cf)
 	link := u.String()
+
+	req := NewRequest(r.Timeout, r.Headers)
 	resp, err := req.Get(link)
 	if err != nil {
 		return cellset, err
@@ -112,11 +114,12 @@ func (r *RestClient) Put(table, rowkey, cf, value string) error {
 	}
 	data := strings.NewReader(string(cs))
 
-	req := NewRequest(r.Timeout, r.Headers)
+	rowkey = url.QueryEscape(rowkey)
 	u, _ := url.Parse(r.Addr)
 	u.Path = path.Join(u.Path, table, rowkey)
 	link := u.String()
 
+	req := NewRequest(r.Timeout, r.Headers)
 	resp, err := req.Post(link, data)
 	if err != nil {
 		return err
