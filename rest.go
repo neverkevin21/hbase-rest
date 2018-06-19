@@ -39,9 +39,12 @@ func (r *RestClient) Get(table, rowkey, cf string) (CellSet, error) {
 	}
 
 	rowkey = url.QueryEscape(rowkey)
-	u, _ := url.Parse(r.Addr)
-	u.Path = path.Join(u.Path, table, rowkey, cf)
-	link := u.String()
+	link := ""
+	if cf == "" {
+		link = fmt.Sprintf("%s/%s/%s", r.Addr, table, rowkey)
+	} else {
+		link = fmt.Sprintf("%s/%s/%s/%s", r.Addr, table, rowkey, cf)
+	}
 
 	req := NewRequest(r.Timeout, r.Headers)
 	resp, err := req.Get(link)
@@ -115,9 +118,7 @@ func (r *RestClient) Put(table, rowkey, cf, value string) error {
 	data := strings.NewReader(string(cs))
 
 	rowkey = url.QueryEscape(rowkey)
-	u, _ := url.Parse(r.Addr)
-	u.Path = path.Join(u.Path, table, rowkey)
-	link := u.String()
+	link := fmt.Sprintf("%s/%s/%s", r.Addr, table, rowkey)
 
 	req := NewRequest(r.Timeout, r.Headers)
 	resp, err := req.Post(link, data)
